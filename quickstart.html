@@ -114,9 +114,15 @@
        * @param {string} message Text to be placed in pre element.
        */
       function appendPre(message) {
+        //var pre2 = document.createElement('h4');
         var pre = document.getElementById('output');
+        var fo = document.createAttribute('class');
+		fo.value = "widget-title";
         var textContent = document.createTextNode(message + '\n');
+        textContent.setAttributeNode(fo);
         pre.appendChild(textContent);
+       // pre2.appendChild(pre);
+        document.body.appendChild(pre);
       }
 
     </script>
