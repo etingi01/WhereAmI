@@ -245,6 +245,7 @@ h4.widget-title {
   font-family: 'robotobold';
   text-transform: uppercase;
   margin-bottom: 40px;
+  font-weight:bolder;
 }
 
 hr {
@@ -260,6 +261,7 @@ hr {
 
 .page-section {
   padding-top: 80px;
+  margin-top:500px;
 }
 
 /*---------------------------------------------------------

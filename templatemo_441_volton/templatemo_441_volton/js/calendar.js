@@ -1,9 +1,4 @@
-﻿<html>
-  <head>
-    <script type="text/javascript">
-      // Your Client ID can be retrieved from your project in the Google
-      // Developer Console, https://console.developers.google.com
-      var CLIENT_ID = '287962904428-tehv0mvl6mvp1mia3vhesfiqpe2u1mrg.apps.googleusercontent.com';
+﻿var CLIENT_ID = '287962904428-tehv0mvl6mvp1mia3vhesfiqpe2u1mrg.apps.googleusercontent.com';
 
       var SCOPES = ["https://www.googleapis.com/auth/calendar.readonly"];
 
@@ -63,13 +58,9 @@
        * appropriate message is printed.
        */
       function listUpcomingEvents() {
-      var currentTime = new Date();
-      var maxTime = new Date();
-      maxTime.setMinutes(maxTime.getMinutes() + 3);
         var request = gapi.client.calendar.events.list({
           'calendarId': 'primary',
-          'timeMin':currentTime.toISOString(),
-          'timeMax':maxTime.toISOString(),
+          'timeMin': (new Date().toLocaleString()).toISOString(),
           'showDeleted': false,
           'singleEvents': true,
           'maxResults': 10,
@@ -91,17 +82,17 @@
               if (!whenEnd) {
                 whenEnd = event.end.date;
               }
+
               appendPre(event.summary);
               appendPre(when);
               appendPre(whenEnd);
+              appendPre(event.end.date);
               appendPre(event.description);
               appendPre(event.location);
-              appendPre(event.status);
-              appendPre(new Date());
-              
+              appendPre(event.status); 
             }
           } else {
-            appendPre('No upcoming events found. ' );
+            appendPre('No upcoming events found.');
           }
 
         });
@@ -119,18 +110,4 @@
         pre.appendChild(textContent);
       }
 
-    </script>
-    <script src="https://apis.google.com/js/client.js?onload=checkAuth">
-    </script>
-  </head>
-  <body>
-    <div id="authorize-div" style="display: none">
-      <span>Authorize access to Google Calendar API</span>
-      <!--Button for the user to click to initiate auth sequence -->
-      <button id="authorize-button" onclick="handleAuthClick(event)">
-        Authorize
-      </button>
-    </div>
-    <pre id="output"></pre>
-  </body>
-</html>
+
