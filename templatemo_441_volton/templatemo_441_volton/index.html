@@ -10,8 +10,8 @@
     
     
     
-    width:700px; height:500px; margin-left:350px;
-    margin-top:715px;
+    width:600px; height:500px; margin-left:350px;
+    margin-top:770px;
     margin-bottom:400px;
     display:block;
     position:absolute;
@@ -19,7 +19,7 @@
     </style>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>Volton - Responsive Mobile Template</title>
+        <title>Find Your Location - Software Reuse Project</title>
         <meta name="description" content="">
         <!-- 
     	Volton Template
@@ -34,7 +34,50 @@
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         <script src="https://apis.google.com/js/client.js?onload=checkAuth">
     </script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBu417YqecJHhfVPptwbsb_9mva74m_JuQ&signed_in=true&callback=initMap"
+        async defer></script>
+
     <script src="js/calendar.js"></script>
+    <script>
+    
+    var battery = navigator.battery.level*100 ;
+    var times = [['08', '13'], ['04', '18']];
+ 	var exeiEvent = false;
+ 	var exeiLocation = false;
+ 	
+    if ((navigator.geolocation)){
+		exeiLocation = true;
+	} 	
+ 	var dateNow = new Date();
+ 	var timenow = dateNow.toTimeString();
+ 	var res = timenow.split(" ");
+ 	var timeParts = res[0].split(":");
+ 	alert (timeParts[0] + " " + timeParts[1]);
+ 	
+ 	var nowHour = parseInt(timeParts[0]);
+ 	var nowMin = parseInt(timeParts[1]);
+ 	
+ 	var workingHours = false;
+ 	
+	if ((nowHour > parseInt(times[0][0]))&&(nowHour < parseInt(times[0][1]))){
+		workingHours =true;
+	
+	}
+	if ((nowHour > parseInt(times[1][0]))&&(nowHour < parseInt(times[1][1]))){
+		workingHours =true;
+	
+	}
+	
+	if ((nowHour==parseInt(times[0][0]))||(nowHour==parseInt(times[1][0]))){
+			workingHours =true;
+	}
+	if ((nowHour==parseInt(times[0][1]))||(nowHour==parseInt(times[1][1]))){
+ 		if (nowMin==0){
+ 			workingHours =true;
+ 		}
+	}
+    </script>
+    
 <script type="text/javascript">
       // Your Client ID can be retrieved from your project in the Google
       // Developer Console, https://console.developers.google.com
@@ -97,6 +140,7 @@
        * the authorized user's calendar. If no events are found an
        * appropriate message is printed.
        */
+       
       function listUpcomingEvents() {
       var currentTime = new Date();
       var maxTime = new Date();
@@ -114,6 +158,7 @@
         request.execute(function(resp) {
           var events = resp.items;
           if (events.length > 0) {
+          exeiEvent = true;
             for (i = 0; i < events.length; i++) {
               var event = events[i];
               var when = event.start.dateTime;
@@ -124,6 +169,7 @@
               if (!whenEnd) {
                 whenEnd = event.end.date;
               }
+              returned = event.location;
               alloname('Event ' + ++i);
               alloname('Title: ');
 			  appendPre(event.summary);
@@ -141,13 +187,204 @@
               appendPre(event.status);
               
             }
-          } else {
-            appendPre('No upcoming events found. ' );
-          }
+            
+            if (!(navigator.geolocation)){
+            	 		 var address = events[0].location ;
+            	var add = events[0].location; 
+            	var due = 'undefined';
+            	if (!((add>due)||(due>add))){
 
-        });
+					address='Kallipoleos 75, Nicosia 1678, Cyprus';
+            	}
+ 	       if (battery>3){          
+            var map = new google.maps.Map(document.getElementById('map2'), {
+   					 zoom: 14
+  					});
+
+  			var geocoder = new google.maps.Geocoder();
+
+  		//document.getElementById('submit').addEventListener('click', function() {
+   			 //geocodeAddress(geocoder, map);
+  		//	});
+			
+
+		//function geocodeAddress(geocoder, resultsMap) {
+  		geocoder.geocode({'address': address}, function(results, status) {
+  		
+   			 if (status === google.maps.GeocoderStatus.OK) {
+
+     		 map.setCenter(results[0].geometry.location);
+     		 var marker = new google.maps.Marker({
+      		  map: map,
+      		  position: results[0].geometry.location
+     		 });
+   			 } else {
+     		 alert('Geocode was not successful for the following reason: ' + status);
+   		 }
+  		});
+		}else{
+			alert("Irthe edw");
+			  			var coordinates;
+
+			 var geocoder = new google.maps.Geocoder();
+  			geocoder.geocode({'address': address}, function(results, status) {
+   			
+			 if (status === google.maps.GeocoderStatus.OK) {
+					coordinates = results[0].geometry.location;
+					document.getElementById('map2').innerHTML = 'Μπαταρία κάτω του 60% <br> Διεύθυνση: ' + address + '<br>' + "Συντεταγμένες: " + coordinates;
+
+			 }
+			});
+			//document.getElementById('map2').innerHTML = 'Μπαταρία κάτω του 60% <br> Διεύθυνση: ' + address + '<br>' + "Συντεταγμένες: " + coordinates;
+
+			}   
+		}
+		
+
+         
+          } else {
+            appendPre('No events found. ' );
+          if (!(navigator.geolocation)){
+
+					address='Kallipoleos 75, Nicosia 1678, Cyprus';
+            	
+ 	       if (battery>3){          
+            var map = new google.maps.Map(document.getElementById('map2'), {
+   					 zoom: 14
+  					});
+
+  			var geocoder = new google.maps.Geocoder();
+
+  		geocoder.geocode({'address': address}, function(results, status) {
+  		
+   			 if (status === google.maps.GeocoderStatus.OK) {
+
+     		 map.setCenter(results[0].geometry.location);
+     		 var marker = new google.maps.Marker({
+      		  map: map,
+      		  position: results[0].geometry.location
+     		 });
+   			 } else {
+     		 alert('Geocode was not successful for the following reason: ' + status);
+   		 }
+  		});
+		}else{
+			  			var coordinates;
+			 var geocoder = new google.maps.Geocoder();
+  			geocoder.geocode({'address': address}, function(results, status) {
+   			
+			 if (status === google.maps.GeocoderStatus.OK) {
+					coordinates = results[0].geometry.location;
+					document.getElementById('map2').innerHTML = 'Μπαταρία κάτω του 60% <br> Διεύθυνση: ' + address + '<br>' + "Συντεταγμένες: " + coordinates;
+
+			 }
+			});
+			
+		}
+            
+            	}
+          }
+ /////////////////////////////////////////////////////         
+          var message;
+	
+	if (workingHours){
+		if (!exeiEvent){
+			if (exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας. Υπάρχει η πιθανότητα να είναι στο χώρο εργασίας του";
+			var message2 = "Ο χρηστης δεν έχει καταχωρημένο work event";
+			finalMessage(message);
+			finalMessage(message2);
+			
+			}
+			if (!exeiLocation){
+			message = "O χρηστης βρίσκεται εν ωρα εργασίας. Δεν υπάρχει καταχωρημένο work event";
+			var message2 = "Η καταχωρημένη ώρα εργασίας του είναι αυτή που εμφανίζεται: στο Πανεπιστήμιο Κύπρου";
+			var message3 = "Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του.";
+			finalMessage(message);
+			finalMessage(message2);
+			finalMessage(message3);
+
+			}
+		}
+		
+		if (exeiEvent){
+			if (exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας και έχει καταχωρημένο work Event.";
+			var message2 = "Άρα βρίσκεται στη δουλειά του με τρέχουσα τοποθεσία η πιο πάνω.";
+			finalMessage(message);
+			finalMessage(message2);
+
+			}
+			if (!exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας και έχει καταχωρημένο work Event.";
+			var message2 = "Άρα βρίσκεται στη δουλειά αλλά δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία.";
+			var message3 = "Πιο πάνω εμφανίζεται είτε η προκαθορισμένη τοποθεσία εργασίας του είτε η τοποθεσία που έχει καταχωρηθεί στο event";
+			finalMessage(message);
+			finalMessage(message2);
+			finalMessage(message3);
+			
+			}
+		}		
+	}
+	if (!workingHours){
+		alert("Irthe not working");
+		if (exeiLocation){
+			if (exeiEvent){
+				message = "O χρηστης βρίσκεται σε εκτακτη δουλειά καθώς δεν είναι ώρα εργασίας, αλλά έχει καταχωρημένο work event";
+				var message2 = "Υπάρχει πρόσβαση στην τρέχουσα τοποθεσία και εμφανίζεται πιο πάνω.";
+				finalMessage(message);
+				finalMessage(message2);
+
+
+			}	
+			if (!(exeiEvent)){
+				message = "O χρηστης το πιο πιθανό ΔΕΝ βρίσκεται στη δουλειά του καθώς δεν είναι ώρα εργασίας και δεν έχει καταχωρημένο work event";
+				var message2 = "Υπάρχει πρόσβαση στην τρεχουσα τοποθεσία του που εμφανίζεται πιο πάνω.";
+				finalMessage(message);
+				finalMessage(message2);
+
+			}	
+		}
+		
+		if (!exeiLocation){
+			if (exeiEvent){
+				message = "O χρηστης βρίσκεται σε εκτακτη δουλειά καθώς δεν είναι ώρα εργασίας, αλλά έχει καταχωρημένο work event";
+				var message2 = "Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του.";
+				var message3 = "Πιο πάνω εμφανίζεται είτε η προκαθορισμένη τοποθεσία εργασίας του είτε η τοποθεσία που έχει καταχωρηθεί στο event";
+				finalMessage(message);
+				finalMessage(message2);
+				finalMessage(message3);
+
+			}	
+			if (!(exeiEvent)){
+				message = "O χρηστης το πιο πιθανό ΔΕΝ βρίσκεται στη δουλειά του καθώς δεν είναι ώρα εργασίας και δεν έχει καταχωρημένο work event";
+				var message2="Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του και έτσι δεν εμφανίζεται κάποια τοποθεσία.";
+				finalMessage(message);
+				finalMessage(message2);		
+			}	
+
+
+		}
+	}
+	
+	
+	
+	function finalMessage(message2){
+      var pre22 = document.createElement('h4');
+        var pre3 = document.getElementById('decision');
+        var fo3 = document.createAttribute('class');
+		fo3.value = "widget-titleInfo";
+        var textContent2 = document.createTextNode(message2);
+        pre22.setAttributeNode(fo3);
+        pre22.appendChild(textContent2);
+        pre3.appendChild(pre22);
+        //document.body.appendChild(pre22);
       }
 
+          
+/////////////////////////////////////////////////////
+        });
+      }
       /**
        * Append a pre element to the body containing the given message
        * as its text node.
@@ -184,7 +421,8 @@
 
     </head>
     <body>
-         <div id="map2"></div>
+        <div id="map2">
+        </div>
         <div id="authorize-div" style="display:none">
 			      <span>Authorize access to Google Calendar API</span>
 			      <p>dsgsdfgsdfgsdf</p>
@@ -193,9 +431,10 @@
 			        Authorize
 			      </button>
 			  </div>
-		<div id="lay" style="position: absolute; left: 1058px; top: 717px; width: 500px; height: 496px; z-index: 3">
+		<div id="lay" style="position: absolute; left: 1000px; top: 770px; width: 500px; height: 496px; z-index: 3">
 		<pre id="output"></pre>
         </div>
+
 <script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
 
          <script>
@@ -203,7 +442,7 @@ if (navigator.geolocation){
                 navigator.geolocation.getCurrentPosition(showCurrentLocation);
                 
             }
-            else{
+            else{				
                alert("Geolocation API not supported.");
             }            
    function showCurrentLocation(position) {         
@@ -211,119 +450,185 @@ if (navigator.geolocation){
         var longitude =position.coords.longitude;
         var coords = new google.maps.LatLng(latitude, longitude);
 		          var geocoder = new google.maps.Geocoder();
-var latLng = new google.maps.LatLng(latitude,longitude);
-
-geocoder.geocode({       
-        latLng: latLng     
-        }, 
-        function(responses) 
-        {     
-           if (responses && responses.length > 0) 
-           {        
-           	
-			var map = new google.maps.Map(document.getElementById('map2'), {
-		    zoom: 14,
-		    center: coords 
-		  });
-		  		  
+		var latLng = new google.maps.LatLng(latitude,longitude);
+ 	     
+				geocoder.geocode({       
+				        latLng: latLng     
+				        }, 
+				        function(responses) 
+				        {     
+	if (responses && responses.length > 0) 
+	 {        
+		if (battery>3){          
+							var map = new google.maps.Map(document.getElementById('map2'), {
+						    zoom: 14,
+						    center: coords 
+						  });
+						  		  
 		 	 
 		
-		var marker = new google.maps.Marker({
-		    position: coords,
-		    map: map,
-		   title: responses[0].formatted_address
-		  });
-		  var infowindow = new google.maps.InfoWindow({
-			content: 'Location Address: '  + responses[0].formatted_address
-			});		
-		 		
-		 	infowindow.open(map, marker);	  
-		  
+				var marker = new google.maps.Marker({
+				    position: coords,
+				    map: map,
+				   title: responses[0].formatted_address
+				  });
+				  var infowindow = new google.maps.InfoWindow({
+					content: 'Location Address: '  + responses[0].formatted_address
+					});		
+				 		
+				 	infowindow.open(map, marker);	  
+		  } else{
+		  document.getElementById('map2').innerHTML = 'Μπαταρία κάτω του 60% <br> Διεύθυνση: ' + responses[0].formatted_address + '<br>' + "Συντεταγμένες: " + coords ;
+
+		  		
+		  	}
 		    	  			
            
                //alert(responses[0].formatted_address);     
-           } 
-           else 
-           {       
-             alert('Not getting Any address for given latitude and longitude.');     
-           }   
-        }
-);
-  //var myLatLng = {lat: -25.363, lng: 131.044};
-
-		  
+        	   } 
+        	   else 
+        	   {       
+        	     alert('Not getting Any address for given latitude and longitude.');     
+        	   }   
+        	}
+			);
+				  
 	}
   
 </script>
  <script async defer
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBu417YqecJHhfVPptwbsb_9mva74m_JuQ&signed_in=true&callback=initMap">
 </script>
+
+
+<script>
+	var message;
+	
+	if (workingHours){
+		if (!exeiEvent){
+			if (exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας. Υπάρχει η πιθανότητα να είναι στο χώρο εργασίας του";
+			var message2 = "Ο χρηστης δεν έχει καταχωρημένο work event";
+			finalMessage(message);
+			finalMessage(message2);
+			
+			}
+			if (!exeiLocation){
+			message = "O χρηστης βρίσκεται εν ωρα εργασίας. Δεν υπάρχει καταχωρημένο work event";
+			var message2 = "Η καταχωρημένη ώρα εργασίας του είναι αυτή που εμφανίζεται: στο Πανεπιστήμιο Κύπρου";
+			var message3 = "Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του.";
+			finalMessage(message);
+			finalMessage(message2);
+			finalMessage(message3);
+
+			}
+		}
+		
+		if (exeiEvent){
+			if (exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας και έχει καταχωρημένο work Event.";
+			var message2 = "Άρα βρίσκεται στη δουλειά του με τρέχουσα τοποθεσία η πιο πάνω.";
+			finalMessage(message);
+			finalMessage(message2);
+
+			}
+			if (!exeiLocation){
+			message = "Ο χρήστης βρίσκεται εν ώρα εργασίας και έχει καταχωρημένο work Event.";
+			var message2 = "Άρα βρίσκεται στη δουλειά αλλά δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία.";
+			var message3 = "Πιο πάνω εμφανίζεται είτε η προκαθορισμένη τοποθεσία εργασίας του είτε η τοποθεσία που έχει καταχωρηθεί στο event";
+			finalMessage(message);
+			finalMessage(message2);
+			finalMessage(message3);
+			
+			}
+		}		
+	}
+	if (!workingHours){
+		alert("Irthe not working");
+		if (exeiLocation){
+			if (exeiEvent){
+				message = "O χρηστης βρίσκεται σε εκτακτη δουλειά καθώς δεν είναι ώρα εργασίας, αλλά έχει καταχωρημένο work event";
+				var message2 = "Υπάρχει πρόσβαση στην τρέχουσα τοποθεσία και εμφανίζεται πιο πάνω.";
+				finalMessage(message);
+				finalMessage(message2);
+
+
+			}	
+			if (!(exeiEvent)){
+				message = "O χρηστης το πιο πιθανό ΔΕΝ βρίσκεται στη δουλειά του καθώς δεν είναι ώρα εργασίας και δεν έχει καταχωρημένο work event";
+				var message2 = "Υπάρχει πρόσβαση στην τρεχουσα τοποθεσία του που εμφανίζεται πιο πάνω.";
+				finalMessage(message);
+				finalMessage(message2);
+
+			}	
+		}
+		
+		if (!exeiLocation){
+			if (exeiEvent){
+				message = "O χρηστης βρίσκεται σε εκτακτη δουλειά καθώς δεν είναι ώρα εργασίας, αλλά έχει καταχωρημένο work event";
+				var message2 = "Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του.";
+				var message3 = "Πιο πάνω εμφανίζεται είτε η προκαθορισμένη τοποθεσία εργασίας του είτε η τοποθεσία που έχει καταχωρηθεί στο event";
+				finalMessage(message);
+				finalMessage(message2);
+				finalMessage(message3);
+
+			}	
+			if (!(exeiEvent)){
+				message = "O χρηστης το πιο πιθανό ΔΕΝ βρίσκεται στη δουλειά του καθώς δεν είναι ώρα εργασίας και δεν έχει καταχωρημένο work event";
+				var message2="Δεν υπάρχει πρόσβαση στην τρέχουσα τοποθεσία του και έτσι δεν εμφανίζεται κάποια τοποθεσία.";
+				finalMessage(message);
+				finalMessage(message2);		
+			}	
+
+
+		}
+	}
+	
+	function finalMessage(message2){
+      var pre22 = document.createElement('h4');
+        var pre3 = document.getElementById('decision');
+        var fo3 = document.createAttribute('class');
+		fo3.value = "widget-title";
+        var textContent2 = document.createTextNode(message2);
+        pre22.setAttributeNode(fo3);
+        pre22.appendChild(textContent2);
+        pre3.appendChild(pre22);
+        //document.body.appendChild(pre22);
+      }
+
+</script>
+
         <!--[if lt IE 7]>
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <div class="responsive-header visible-xs visible-sm">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="top-section">
-                            <div class="profile-image">
-                                <img src="img/profile.jpg" alt="Volton">
-                            </div>
-                            <div class="profile-content">
-                                <h3 class="profile-title">Volton</h3>
-                                <p class="profile-description">Pro Photography</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <a href="#" class="toggle-menu"><i class="fa fa-bars"></i></a>
-                <div class="main-navigation responsive-menu">
-                    <ul class="navigation">
-                        <li><a href="#top"><i class="fa fa-home"></i>Home</a></li>
-                        <li><a href="#about"><i class="fa fa-user"></i>About Me</a></li>
-                        <li><a href="#projects"><i class="fa fa-newspaper-o"></i>My Gallery</a></li>
-                        <li><a href="#contact"><i class="fa fa-envelope"></i>Contact Me</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
 
         <!-- SIDEBAR -->
-        <div class="sidebar-menu hidden-xs hidden-sm">
+        <div class="sidebar-menu hidden-xs hidden-sm" style="left: 0px; top: 0px">
             <div class="top-section">
-                <div class="profile-image">
-                    <img src="img/profile.jpg" alt="Volton">
+                <div class="profile-image" style="background-color:#FF9966">
+                    <img src="img/profile2.jpg" alt="Volton">
                 </div>
-                <h3 class="profile-title">Volton</h3>
-                <p class="profile-description">Pro Photography</p>
+                <h3 class="profile-title">Evanthia Tingiri</h3>
+                <p class="profile-description">Software Reuse</p>
             </div> <!-- top-section -->
             <div class="main-navigation">
                 <ul class="navigation">
                     <li><a href="#top"><i class="fa fa-globe"></i>Welcome</a></li>
                     <li><a href="#about"><i class="fa fa-pencil"></i>Find My Location</a></li>
-                    <li><a href="#projects"><i class="fa fa-paperclip"></i>My Gallery</a></li>
-                    <li><a href="#contact"><i class="fa fa-link"></i>Sing In using Google</a></li>
+                    <li><a href="#contact"><i class="fa fa-link"></i>Decision</a></li>
                 </ul>
             </div> <!-- .main-navigation -->
-            <div class="social-icons">
-                <ul>
-                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                    <li><a href="#"><i class="fa fa-google-plus"></i></a></li>
-                    <li><a href="#"><i class="fa fa-youtube"></i></a></li>
-                    <li><a href="#"><i class="fa fa-rss"></i></a></li>
-                </ul>
-            </div> <!-- .social-icons -->
-        </div> <!-- .sidebar-menu -->
+                    </div> <!-- .sidebar-menu -->
         
 
         <div class="banner-bg" id="top">
             <div class="banner-overlay"></div>
             <div class="welcome-text">
-                <h2>Simple Design | Personal Portfolio</h2>
-                <h5>This is a mobile friendly layout with Bootstrap v3.3.1 framework. Maecenas eu ante at nunc posuere fringilla sit amet non dolor. Proin condimentum fermentum nunc.</h5>
-            </div>
+                <h2>Your Location | Your Work </h2>
+                <h5>This is a web app that determines if you are at work or somewhere else. If the level of battery is higher than 60%, it shows your location on the map, else it shows it as a text. This web app also considers your calendar events, to make a decision.</h5>
+           		<br>
+           		<h5>Click on "Find My Location" and on "Decision"</h5>
+			 </div>
         </div>
 
         <!-- MAIN CONTENT -->
@@ -355,10 +660,12 @@ geocoder.geocode({
                             <div class="fluid-container">
 
                     <div class="page-section" id="contact">
-                    <div class="row">
+                    <div class="row" id="#projects">
                         <div class="col-md-12" style="left: 50px; top: 0px">
-                            <h4 class="widget-title">PLACE TO TALK WITH ME</h4>
-                            <p>Vestibulum ac iaculis erat, in semper dolor. Maecenas et lorem molestie, maximus justo dignissim, cursus nisl. Nullam at ante quis ex pharetra pulvinar quis id dolor. Integer lorem odio, euismod ut sem sit amet, imperdiet condimentum diam.</p>
+                            <h4 class="widget-title">ΣΥΜΠΕΡΑΣΜΑΤΑ</h4>
+                            		<pre id="decision"></pre>
+
+                            
                         </div>
                     </div>
                     
@@ -369,7 +676,7 @@ geocoder.geocode({
 
                     <div class="row" id="footer">
                         <div class="col-md-12 text-center">
-                            <p class="copyright-text">Copyright &copy; 2084 Company Name</p>
+                            <p class="copyright-text">Copyright &copy; 2015 Software Reuse Course</p>
                         </div>
                     </div>
 
